@@ -24,7 +24,7 @@ namespace Nikki.Support.Undercover.Framework
 			this._logger = new Logger("MainLog.txt", "Nikki.dll : Undercover DatabaseSaver", true);
 		}
 
-		public void Invoke()
+		public string Invoke()
 		{
 			var info = new FileInfo(this._options.File);
 
@@ -32,17 +32,26 @@ namespace Nikki.Support.Undercover.Framework
 			{
 
 				this.WriteUnique();
-				return;
 
 			}
+			else
+			{
 
-			info.IsReadOnly = false;
-			var comp = this.NeedsDecompression();
-			if (!comp && info.Length > (1 << 26)) this.WriteFromStream();
-			else this.WriteFromBuffer(comp);
+				info.IsReadOnly = false;
+				var comp = this.NeedsDecompression();
+				if (!comp && info.Length > (1 << 26)) this.WriteFromStream();
+				else this.WriteFromBuffer(comp);
 
-			ForcedX.GCCollect();
-		}
+				ForcedX.GCCollect();
+			}
+
+            if (this._db.DBModelParts._uniqueAttributesUsed > ushort.MaxValue)
+            {
+                this._logger.WriteLine("DBModelParts: Out of storage space for PartAttributes (trying to store " + this._db.DBModelParts._uniqueAttributesUsed + "/65535 attributes).");
+				return "DBModelParts: Out of storage space for PartAttributes (trying to store " + this._db.DBModelParts._uniqueAttributesUsed + "/65535 attributes).";
+            }
+			return null;
+        }
 
 		private bool NeedsDecompression()
 		{
@@ -68,7 +77,8 @@ namespace Nikki.Support.Undercover.Framework
 			this._db.Collisions.Assemble(bw, this._options.Watermark);
 			this._db.FNGroups.Assemble(bw, this._options.Watermark);
 			this._db.VectorVinyls.Assemble(bw, this._options.Watermark);
-		}
+
+        }
 
 		private void WriteFromStream()
 		{

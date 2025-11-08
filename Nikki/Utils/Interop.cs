@@ -42,7 +42,8 @@ namespace Nikki.Utils
 
 			lock (Interop._s_lock)
 			{
-			
+				// had to set the whole program back to 32 bit because BlockDecompress in the 114kB LZCompressLib is B R O K E N
+				// thank you guys for making half of your stuff closed source
 				PrivateDecode(input, input.Length, output);
 			
 			}

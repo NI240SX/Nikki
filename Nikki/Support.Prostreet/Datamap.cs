@@ -203,10 +203,11 @@ namespace Nikki.Support.Prostreet
 		/// Saves all data in the database using options passed.
 		/// </summary>
 		/// <param name="options"><see cref="Options"/> that are used to save data.</param>
-		public override void Save(Options options)
+		public override string Save(Options options)
 		{
 			using var saver = new DatabaseSaver(options, this);
 			saver.Invoke();
+			return null;
 		}
 
 		/// <summary>

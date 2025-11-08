@@ -12,6 +12,8 @@ using Nikki.Support.Undercover.Attributes;
 using Nikki.Support.Shared.Parts.CarParts;
 using CoreExtensions.IO;
 using CoreExtensions.Reflection;
+using Nikki.Reflection.Attributes;
+using System.ComponentModel;
 
 
 
@@ -57,11 +59,20 @@ namespace Nikki.Support.Undercover.Framework
 		/// </summary>
 		public override Type CollectionType => typeof(DBModelPart);
 
-		/// <summary>
-		/// Initializes new instance of <see cref="DBModelPartManager"/>.
-		/// </summary>
-		/// <param name="db"><see cref="Datamap"/> to which this manager belongs to.</param>
-		public DBModelPartManager(Datamap db) : base(db)
+		public int _uniqueAttributesUsed = -1;
+
+        [Category("Main")]
+		public string UniquePartsUsed
+        {
+			get => (this._uniqueAttributesUsed < 0) ? "" : "Unique PartAttributes stored: " + this._uniqueAttributesUsed + "/65535 (" + (int)((this._uniqueAttributesUsed / 655.35) * 100) / 100.0 + "%) ";
+        }
+
+
+        /// <summary>
+        /// Initializes new instance of <see cref="DBModelPartManager"/>.
+        /// </summary>
+        /// <param name="db"><see cref="Datamap"/> to which this manager belongs to.</param>
+        public DBModelPartManager(Datamap db) : base(db)
 		{
 			this.Extender = 5;
 			this.Alignment = new Alignment(0x8, Alignment.AlignmentType.Actual);
@@ -262,6 +273,7 @@ namespace Nikki.Support.Undercover.Framework
 			var offset_dict = new Dictionary<int, int>(); // RealCarPart to AttribOffset
 			offset_buffer = null;
 			int length = 0;
+			int maxlength = 0;
 			int key = 0;
 
 			// Initialize streams
@@ -310,8 +322,15 @@ namespace Nikki.Support.Undercover.Framework
 
 							bw.Write(attrib);
 
-						}
+                        }
 
+                        if (maxlength < length) maxlength = length;
+#if DEBUG
+                        if (length > ushort.MaxValue)
+						{
+							Console.WriteLine("DBModelParts: Out of storage space for new unique part " + realpart.NameByPartOffsets.Replace(realpart.Model.CollectionName + "_", "") + ", car "+realpart.Model.CollectionName+", length " + length + "/65535");
+						}
+#endif
 						length += 1 + offset.AttribOffsets.Count; // increase length
 					
 					}
@@ -321,6 +340,10 @@ namespace Nikki.Support.Undercover.Framework
 				}
 			
 			}
+			this._uniqueAttributesUsed = maxlength;
+#if DEBUG
+            Console.WriteLine("DBModelParts: Unique part storage space used " + maxlength + "/65535 (" + (int)((maxlength / 655.35)*100)/100.0 + "%)");
+#endif
 
 			// Return prepared dictionary
 			var dif = 0x10 - ((int)ms.Length + 0xC) % 0x10;
@@ -569,7 +592,7 @@ namespace Nikki.Support.Undercover.Framework
 			return custattr_buffer.Length;
 		}
 
-		#endregion
+#endregion
 
 		#region Private Disassemble
 

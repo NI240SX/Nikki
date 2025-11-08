@@ -44,7 +44,7 @@ namespace Nikki.Reflection.Abstract
         /// Saves all data in the database using options passed.
         /// </summary>
         /// <param name="options"><see cref="Options"/> that are used to save data.</param>
-        public abstract void Save(Options options);
+        public abstract string Save(Options options);
 
         /// <summary>
         /// Exports collection by writing its data to a <see cref="BinaryWriter"/> provided.

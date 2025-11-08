@@ -157,6 +157,9 @@ namespace Nikki.Support.Undercover.Framework
 					}
 
 				}
+
+				if (id != BinBlockID.Padding) Console.WriteLine(this._options.File+ " | BinBlock @" + off + ", id=" + Enum.GetName(typeof(BinBlockID), id));
+
 				#endif
 
 				switch (id)
@@ -211,6 +214,15 @@ namespace Nikki.Support.Undercover.Framework
 						this.caranimations.Offsets.Add(off);
 						goto default;
 
+					case BinBlockID.CarInfoAnimHideup: //empty in uc
+					case BinBlockID.FEngFont: //3 in 1.18
+					case BinBlockID.PCAWeights: //1 in 1.18
+					case BinBlockID.DDSTexture: //1 in 1.18, volume map
+					case BinBlockID.GeometryPack: //UCGT can open them all, except the one in globalb lol
+					case BinBlockID.EventSequence: //custom missions ???
+					case BinBlockID.SkinRegionDB: //addon vinyls
+					case BinBlockID.VinylMetaData: //
+					case BinBlockID.ICECatalog:
 					default:
 						br.BaseStream.Position += size;
 						break;
