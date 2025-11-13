@@ -33,6 +33,7 @@ namespace Nikki.Support.Undercover.Framework
 		private Block tpkblocks;
 		private Block tracks;
 		private Block vectorvinyls;
+		private Block skinregiondb;
 
 		public DatabaseLoader(Options options, Datamap db)
 		{
@@ -51,7 +52,9 @@ namespace Nikki.Support.Undercover.Framework
 			this.slottypes = new Block(BinBlockID.SlotTypes);
 			this.vectorvinyls = new Block(BinBlockID.VinylSystem);
 			this.caranimations = new Block(BinBlockID.CarInfoAnimHookup);
-		}
+			this.skinregiondb = new Block(BinBlockID.SkinRegionDB);
+
+        }
 
 		public void Invoke()
 		{
@@ -124,6 +127,7 @@ namespace Nikki.Support.Undercover.Framework
 			this._db.SlotTypes.Disassemble(br, this.slottypes);
 			this._db.SlotOverrides.Disassemble(br, this.slottypes);
 			this._db.VectorVinyls.Disassemble(br, this.vectorvinyls);
+			this._db.SkinRegions.Disassemble(br, this.skinregiondb);
 			this.ProcessCarAnimations(br);
 		}
 
@@ -214,13 +218,16 @@ namespace Nikki.Support.Undercover.Framework
 						this.caranimations.Offsets.Add(off);
 						goto default;
 
-					case BinBlockID.CarInfoAnimHideup: //empty in uc
+                    case BinBlockID.SkinRegionDB: //addon vinyls
+						this.skinregiondb.Offsets.Add(off);
+						goto default;
+
+                    case BinBlockID.CarInfoAnimHideup: //empty in uc
 					case BinBlockID.FEngFont: //3 in 1.18
 					case BinBlockID.PCAWeights: //1 in 1.18
 					case BinBlockID.DDSTexture: //1 in 1.18, volume map
 					case BinBlockID.GeometryPack: //UCGT can open them all, except the one in globalb lol
 					case BinBlockID.EventSequence: //custom missions ???
-					case BinBlockID.SkinRegionDB: //addon vinyls
 					case BinBlockID.VinylMetaData: //
 					case BinBlockID.ICECatalog:
 					default:

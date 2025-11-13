@@ -11,10 +11,10 @@ using Nikki.Support.Undercover.Framework;
 
 namespace Nikki.Support.Undercover
 {
-	/// <summary>
-	/// <see cref="Datamap"/> is an extension of <see cref="FileBase"/> for Undercover support.
-	/// </summary>
-	public class Datamap : FileBase
+    /// <summary>
+    /// <see cref="Datamap"/> is an extension of <see cref="FileBase"/> for Undercover support.
+    /// </summary>
+    public class Datamap : FileBase
 	{
 		/// <summary>
 		/// Game to which the class belongs to.
@@ -43,6 +43,7 @@ namespace Nikki.Support.Undercover
 			this.Managers.Add(new TPKBlockManager(this));
 			this.Managers.Add(new TrackManager(this));
 			this.Managers.Add(new VectorVinylManager(this));
+			this.Managers.Add(new SkinRegionManager(this));
 		}
 
 		/// <summary>
@@ -187,6 +188,15 @@ namespace Nikki.Support.Undercover
 				var manager = this.GetManager(typeof(VectorVinylManager));
 				return manager == null ? null : manager as VectorVinylManager;
 			}
+		}
+
+		public SkinRegionManager SkinRegions
+		{
+			get
+			{
+				var manager = this.GetManager(typeof(SkinRegionManager));
+                return manager == null ? null : manager as SkinRegionManager;
+            }
 		}
 
 		/// <summary>

@@ -113,13 +113,13 @@ namespace Nikki.Support.Undercover.Class
 		/// List of collision bounds.
 		/// </summary>
 		[Category("Secondary")]
-		public List<CollisionBound> CollisionBounds { get; }
+        public List<CollisionBound> CollisionBounds { get; }
 
 		/// <summary>
 		/// List of convex vertices shapes.
 		/// </summary>
 		[Category("Secondary")]
-		public List<ConvexVerticesShape> ConvexVerticesShapes { get; }
+        public List<ConvexVerticesShape> ConvexVerticesShapes { get; }
 
 		/// <summary>
 		/// List of convex translate shapes.
