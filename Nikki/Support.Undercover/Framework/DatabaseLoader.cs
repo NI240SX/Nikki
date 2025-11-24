@@ -6,6 +6,8 @@ using Nikki.Utils;
 using Nikki.Reflection.Enum;
 using CoreExtensions.IO;
 using CoreExtensions.Management;
+using System.Diagnostics;
+using Microsoft.VisualBasic.FileIO;
 
 
 
@@ -33,9 +35,11 @@ namespace Nikki.Support.Undercover.Framework
 		private Block tpkblocks;
 		private Block tracks;
 		private Block vectorvinyls;
-		private Block skinregiondb;
+        private Block skinregiondb;
+        private Block vinylmetadata;
+        private Block eventsequence;
 
-		public DatabaseLoader(Options options, Datamap db)
+        public DatabaseLoader(Options options, Datamap db)
 		{
 			this._options = options;
 			this._db = db;
@@ -52,11 +56,13 @@ namespace Nikki.Support.Undercover.Framework
 			this.slottypes = new Block(BinBlockID.SlotTypes);
 			this.vectorvinyls = new Block(BinBlockID.VinylSystem);
 			this.caranimations = new Block(BinBlockID.CarInfoAnimHookup);
-			this.skinregiondb = new Block(BinBlockID.SkinRegionDB);
+            this.skinregiondb = new Block(BinBlockID.SkinRegionDB);
+            this.vinylmetadata = new Block(BinBlockID.VinylMetaData);
+            this.eventsequence = new Block(BinBlockID.EventSequence);
 
         }
 
-		public void Invoke()
+        public void Invoke()
 		{
 			var info = new FileInfo(this._options.File);
 			if (!info.Exists) return;
@@ -115,7 +121,47 @@ namespace Nikki.Support.Undercover.Framework
 		{
 			this.ReadBlockOffsets(br);
 
-			this._db.STRBlocks.Disassemble(br, this.strblocks);
+#if DEBUG
+            var s = new Stopwatch();
+            s.Start();
+            Console.WriteLine($"loading {this._options.File} {s.Elapsed.ToString()}");
+            this._db.STRBlocks.Disassemble(br, this.strblocks);
+            Console.WriteLine($"loading {this._options.File} STRBlocks {s.Elapsed.ToString()}");
+            this._db.Materials.Disassemble(br, this.materials);
+            Console.WriteLine($"loading {this._options.File} Materials {s.Elapsed.ToString()}");
+            this._db.TPKBlocks.Disassemble(br, this.tpkblocks);
+            Console.WriteLine($"loading {this._options.File} TPKBlocks {s.Elapsed.ToString()}");
+            this._db.CarTypeInfos.Disassemble(br, this.cartypeinfos);
+            Console.WriteLine($"loading {this._options.File} CarTypeInfos {s.Elapsed.ToString()}");
+            this._db.DBModelParts.Disassemble(br, this.dbmodelparts);
+            Console.WriteLine($"loading {this._options.File} DBModelParts {s.Elapsed.ToString()}");
+            this._db.SunInfos.Disassemble(br, this.suninfos);
+            Console.WriteLine($"loading {this._options.File} SunInfos {s.Elapsed.ToString()}");
+            this._db.Tracks.Disassemble(br, this.tracks);
+            Console.WriteLine($"loading {this._options.File} Tracks {s.Elapsed.ToString()}");
+            this._db.Collisions.Disassemble(br, this.collisions);
+            Console.WriteLine($"loading {this._options.File} Collisions {s.Elapsed.ToString()}");
+            this._db.FNGroups.Disassemble(br, this.fngroups);
+            Console.WriteLine($"loading {this._options.File} FNGroups {s.Elapsed.ToString()}");
+            this._db.SlotTypes.Disassemble(br, this.slottypes);
+            Console.WriteLine($"loading {this._options.File} SlotTypes {s.Elapsed.ToString()}");
+            this._db.SlotOverrides.Disassemble(br, this.slottypes);
+            Console.WriteLine($"loading {this._options.File} SlotOverrides {s.Elapsed.ToString()}");
+            this._db.VectorVinyls.Disassemble(br, this.vectorvinyls);
+            Console.WriteLine($"loading {this._options.File} VectorVinyls {s.Elapsed.ToString()}");
+            this._db.SkinRegions.Disassemble(br, this.skinregiondb);
+            Console.WriteLine($"loading {this._options.File} SkinRegionDB {s.Elapsed.ToString()}");
+            this._db.VinylMetaData.Disassemble(br, this.vinylmetadata);
+            Console.WriteLine($"loading {this._options.File} VinylMetaData {s.Elapsed.ToString()}");
+            this._db.EventSequence.Disassemble(br, this.eventsequence);
+            Console.WriteLine($"loading {this._options.File} EventSequence {s.Elapsed.ToString()}");
+            this.ProcessCarAnimations(br);
+            Console.WriteLine($"loading {this._options.File} CarAnimations {s.Elapsed.ToString()}");
+            Console.WriteLine($"loading {this._options.File} done {s.Elapsed.ToString()}");
+			s.Stop();
+#else
+
+            this._db.STRBlocks.Disassemble(br, this.strblocks);
 			this._db.Materials.Disassemble(br, this.materials);
 			this._db.TPKBlocks.Disassemble(br, this.tpkblocks);
 			this._db.CarTypeInfos.Disassemble(br, this.cartypeinfos);
@@ -127,11 +173,14 @@ namespace Nikki.Support.Undercover.Framework
 			this._db.SlotTypes.Disassemble(br, this.slottypes);
 			this._db.SlotOverrides.Disassemble(br, this.slottypes);
 			this._db.VectorVinyls.Disassemble(br, this.vectorvinyls);
-			this._db.SkinRegions.Disassemble(br, this.skinregiondb);
-			this.ProcessCarAnimations(br);
-		}
+            this._db.SkinRegions.Disassemble(br, this.skinregiondb);
+            this._db.VinylMetaData.Disassemble(br, this.vinylmetadata);
+            this._db.EventSequence.Disassemble(br, this.eventsequence);
+            this.ProcessCarAnimations(br);
+#endif
+        }
 
-		private void ReadBlockOffsets(BinaryReader br)
+        private void ReadBlockOffsets(BinaryReader br)
 		{
 			while (br.BaseStream.Position < br.BaseStream.Length)
 			{
@@ -140,7 +189,7 @@ namespace Nikki.Support.Undercover.Framework
 				var id = br.ReadEnum<BinBlockID>();
 				var size = br.ReadInt32();
 
-				#if DEBUG
+#if DEBUG
 				if (!Enum.IsDefined(typeof(BinBlockID), (uint)id))
 				{
 
@@ -164,7 +213,7 @@ namespace Nikki.Support.Undercover.Framework
 
 				if (id != BinBlockID.Padding) Console.WriteLine(this._options.File+ " | BinBlock @" + off + ", id=" + Enum.GetName(typeof(BinBlockID), id));
 
-				#endif
+#endif
 
 				switch (id)
 				{
@@ -222,13 +271,19 @@ namespace Nikki.Support.Undercover.Framework
 						this.skinregiondb.Offsets.Add(off);
 						goto default;
 
+                    case BinBlockID.VinylMetaData: //quite useless ngl
+						this.vinylmetadata.Offsets.Add(off);
+						goto default;
+
+                    case BinBlockID.EventSequence:
+                        this.eventsequence.Offsets.Add(off);
+                        goto default;
+
                     case BinBlockID.CarInfoAnimHideup: //empty in uc
 					case BinBlockID.FEngFont: //3 in 1.18
 					case BinBlockID.PCAWeights: //1 in 1.18
 					case BinBlockID.DDSTexture: //1 in 1.18, volume map
 					case BinBlockID.GeometryPack: //UCGT can open them all, except the one in globalb lol
-					case BinBlockID.EventSequence: //custom missions ???
-					case BinBlockID.VinylMetaData: //
 					case BinBlockID.ICECatalog:
 					default:
 						br.BaseStream.Position += size;

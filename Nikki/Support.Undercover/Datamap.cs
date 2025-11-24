@@ -43,8 +43,10 @@ namespace Nikki.Support.Undercover
 			this.Managers.Add(new TPKBlockManager(this));
 			this.Managers.Add(new TrackManager(this));
 			this.Managers.Add(new VectorVinylManager(this));
-			this.Managers.Add(new SkinRegionManager(this));
-		}
+            this.Managers.Add(new SkinRegionManager(this));
+            this.Managers.Add(new VinylMetaDataManager(this));
+            this.Managers.Add(new EventSequenceManager(this));
+        }
 
 		/// <summary>
 		/// <see cref="Manager{T}"/> that manages <see cref="CarTypeInfo"/>.
@@ -199,11 +201,28 @@ namespace Nikki.Support.Undercover
             }
 		}
 
-		/// <summary>
-		/// Loads all data in the database using options passed.
-		/// </summary>
-		/// <param name="options"><see cref="Options"/> that are used to load data.</param>
-		public override void Load(Options options)
+		public VinylMetaDataManager VinylMetaData
+		{
+			get
+			{
+				var mgr = this.GetManager(typeof(VinylMetaDataManager));
+				return mgr == null ? null : mgr as VinylMetaDataManager;
+            }
+		}
+        public EventSequenceManager EventSequence
+        {
+            get
+            {
+                var mgr = this.GetManager(typeof(EventSequenceManager));
+                return mgr == null ? null : mgr as EventSequenceManager;
+            }
+        }
+
+        /// <summary>
+        /// Loads all data in the database using options passed.
+        /// </summary>
+        /// <param name="options"><see cref="Options"/> that are used to load data.</param>
+        public override void Load(Options options)
 		{
 			using var loader = new DatabaseLoader(options, this);
 			loader.Invoke();

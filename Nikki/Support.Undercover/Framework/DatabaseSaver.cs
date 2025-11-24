@@ -78,6 +78,7 @@ namespace Nikki.Support.Undercover.Framework
 			this._db.FNGroups.Assemble(bw, this._options.Watermark);
 			this._db.VectorVinyls.Assemble(bw, this._options.Watermark);
 			this._db.SkinRegions.Assemble(bw, this._options.Watermark);
+			this._db.VinylMetaData.Assemble(bw, this._options.Watermark);
 
         }
 
@@ -123,6 +124,7 @@ namespace Nikki.Support.Undercover.Framework
 			this._db.FNGroups.Assemble(bw, this._options.Watermark);
 			this._db.VectorVinyls.Assemble(bw, this._options.Watermark);
             this._db.SkinRegions.Assemble(bw, this._options.Watermark);
+			this._db.VinylMetaData.Assemble(bw, this._options.Watermark);
             this.WriteBlockOffsets(bw, br);
 		}
 
@@ -168,7 +170,8 @@ namespace Nikki.Support.Undercover.Framework
 					case BinBlockID.CarInfoAnimHideup:
 					case BinBlockID.CarInfoAnimHookup:
 					case BinBlockID.SkinRegionDB:
-						br.BaseStream.Position += size;
+					case BinBlockID.VinylMetaData:
+                        br.BaseStream.Position += size;
 						break;
 
 					default:
